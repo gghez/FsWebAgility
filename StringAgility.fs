@@ -52,6 +52,12 @@ let (|PrefixFirst|_|) (input:string) =
     else
         None
 
+let (|PrefixFirstSpace|_|) input =
+    match input with
+    | PrefixFirst (first, after)    -> match first with | WhiteSpace -> Some(after) | _ -> None
+    | _                             -> None
+
+
 // Match input with before+(any char) and provides before  
 let (|PostfixLast|_|) (input:string) =
     if input <> null && input.Length >= 1 then

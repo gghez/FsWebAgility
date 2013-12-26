@@ -8,9 +8,12 @@
 open WebAgility
 open StringAgility
 
-let attrs1 = "data-key=\"toto\" \r\n width\t= 650  data   =\n \"titi\" "
+let attrsHtml = " data-key=\"toto\" data-model viewmodel='some \"view\" model' \r\n width\t= 650  data   =\n \"titi\" last"
 
+printfn "attributes = %A" attrsHtml
+let attrs = ReadAttributes attrsHtml
+attrs |> Seq.iter (fun attr -> printfn "(%s, %A)" attr.Name attr.Value)
 
-ReadAttributes attrs1
-    |> Seq.iter (fun attr -> printfn "%A" (attr.Name, attr.Value))
-
+let html = "<div" + attrsHtml + ">"
+let node = ReadNode html
+printfn "%A" node
