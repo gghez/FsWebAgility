@@ -1,5 +1,8 @@
 ﻿module StringAgility
 
+let StartsWith (str:string) (input:string) = input <> null && str <> null && input.Length >= str.Length && input.StartsWith(str)
+let EndsWith (str:string) (input:string) = input <> null && str <> null && input.Length >= str.Length && input.EndsWith(str)
+
 // Remove first n chars from a string
 let TrimNStart n (input:string) = input.Substring(n)
 // Remove last n chars from a string
@@ -32,15 +35,15 @@ let (|WhiteSpace|_|) input =
 let (|IsEmpty|_|) (input:string) = if System.String.IsNullOrEmpty(input) then Some() else None
 
 // Match input with prefix+after and provides after
-let (|Prefix|_|) (prefix:string) (input:string) =
-    if input <> null && prefix <> null && input.Length >= prefix.Length && input.StartsWith(prefix) then
+let (|Prefix|_|) prefix input =
+    if StartsWith prefix input then
         Some(input.Substring(prefix.Length))
     else
         None
 
 // Match input with before+postfix and provides before
-let (|Postfix|_|) (postfix:string) (input:string) =
-    if input <> null && postfix <> null && input.Length >= postfix.Length && input.EndsWith(postfix) then
+let (|Postfix|_|) postfix input =
+    if EndsWith postfix input then
         Some(input.Substring(0, input.Length - postfix.Length))
     else
         None
