@@ -108,7 +108,3 @@ let (|LetterOrDigit|_|) (input:string) =
     | PrefixFirst (first, after)    -> if System.Char.IsLetterOrDigit(first.[0]) then Some(first, after) else None
     | _                             -> None
 
-let (|PrefixUntil|_|) needle input =
-    match input with
-    | Contains needle (before, after)   -> Some(before, after)
-    | _                                 -> None
