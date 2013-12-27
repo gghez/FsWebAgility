@@ -141,7 +141,7 @@ let (|Node|_|) html =
 let (|TextNode|_|) html =
    match html with
     | Prefix "<" after                  -> None
-    | PrefixUntil "<" (before, after)   -> Some(NodeText(before), "<" + after)
+    | Contains "<" (before, after)      -> Some(NodeText(before), "<" + after)
     | _                                 -> None
 
 let rec ReadNode html =
