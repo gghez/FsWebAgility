@@ -89,3 +89,19 @@ let (|SurroundedWith|_|) needle input =
     match input with
     | Match needle needle surrounded    -> Some(surrounded)
     | _                                 -> None
+
+
+let (|Letter|_|) (input:string) =
+    match input with
+    | PrefixFirst (first, after)    -> if System.Char.IsLetter(first.[0]) then Some(first, after) else None
+    | _                             -> None
+
+let (|Digit|_|) (input:string) =
+    match input with
+    | PrefixFirst (first, after)    -> if System.Char.IsDigit(first.[0]) then Some(first, after) else None
+    | _                             -> None
+
+let (|LetterOrDigit|_|) (input:string) =
+    match input with
+    | PrefixFirst (first, after)    -> if System.Char.IsLetterOrDigit(first.[0]) then Some(first, after) else None
+    | _                             -> None
