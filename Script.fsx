@@ -13,8 +13,8 @@ let html = "<div    data-key=\"toto\"
                     width   = 650
                     data   =
                         \"titi\" last=some>
-                <h1>Title <span class='b'>te<b>x</b>t </span></h1>
+                <h1>Title <span class='b'>te<b>x</b>t </span></h1><hr/>
                 <p style=\"font-style: italic;\">Content text</p><p>second content</p>
-            </div>"
+            </div> <section class=\"sec\" /> "
 
 ReadNode html

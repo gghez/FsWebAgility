@@ -51,7 +51,8 @@ let (|NameChar|_|) input =
 let (|AttributeNameDelimiter|_|) html =
     match html with
     | PrefixFirstSpace after    -> Some(after)
-    | Prefix ">" after          
+    | Prefix ">" after
+    | Prefix "/" after
     | Prefix "=" after          -> Some(html)
     | _                         -> None
 
@@ -73,7 +74,7 @@ type Attribute = {Name:string; Value:string option}
 
 // Try match an HTML node attribute with its value (if exists) from html
 let (|Attribute|_|) html =
-    let attributeName = ReadAttributeName (TrimStartSpaces html)
+    let attributeName = ReadAttributeName html
     if attributeName.IsSome then
         let (name, afterName) = attributeName.Value
         // Attribute name read, now start reading attribute value if exists
@@ -93,7 +94,9 @@ let (|Attribute|_|) html =
 // Read HTML node attributes from html
 let rec ReadAttributes html =
     match html with
-    | Prefix ">" after          -> ([], after)
+    | PrefixFirstSpace after    -> ReadAttributes after
+    | Prefix "/" after
+    | Prefix ">" after          -> ([], html)
     | Attribute (attr, after)   ->
         let (readAttr, readAfter) = ReadAttributes after
         (attr::readAttr, readAfter)
@@ -103,6 +106,7 @@ let rec ReadAttributes html =
 let (|NodeNameDelimiter|_|) html =
     match html with
     | PrefixFirstSpace after    -> Some(after)
+    | Prefix "/" after
     | Prefix ">" after          -> Some(html)
     | _                         -> None
 
@@ -118,10 +122,11 @@ let rec ReadNodeName html =
 // Provides a simple structure for HTML node
 //type Node = {Name:string; Attributes:Attribute list; }
 type Node =
-    | NodeDefinition of string * Attribute list
+    | NodeDefinition of string * Attribute list * bool
     | NodeClosing of string
     | NodeText of string
     | NodeComment of string
+    | NodeUnknown of string
 
 // Try match a HTML node definition with html (eg: <div style="...">)
 
@@ -134,8 +139,8 @@ let (|Node|_|) html =
             Some(NodeClosing(name), nameAfter)
         | _                             ->
             let (name, nameAfter) = ReadNodeName after
-            let (attrs, attrsAfter) = ReadAttributes (TrimStartSpaces nameAfter)
-            Some(NodeDefinition(name, attrs), attrsAfter)
+            let (attrs, attrsAfter) = ReadAttributes nameAfter
+            Some(NodeDefinition(name, attrs, StartsWith "/" attrsAfter), attrsAfter)
     | _                 -> None
 
 let (|TextNode|_|) html =
