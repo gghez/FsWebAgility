@@ -8,12 +8,13 @@
 open WebAgility
 open StringAgility
 
-let attrsHtml = " data-key=\"toto\" data-model viewmodel='some \"view\" model' \r\n width\t= 650  data   =\n \"titi\" last"
+let html = "<div    data-key=\"toto\"
+                    data-model viewmodel='some \"view\" model'
+                    width   = 650
+                    data   =
+                        \"titi\" last=some>
+                <h1>Title <span class='b'>te<b>x</b>t </span></h1>
+                <p style=\"font-style: italic;\">Content text</p><p>second content</p>
+            </div>"
 
-printfn "attributes = %A" attrsHtml
-let attrs = ReadAttributes attrsHtml
-attrs |> Seq.iter (fun attr -> printfn "(%s, %A)" attr.Name attr.Value)
-
-let html = "<div" + attrsHtml + ">"
-let node = ReadNode html
-printfn "%A" node
+ReadNode html
