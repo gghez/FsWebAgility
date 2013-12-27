@@ -156,3 +156,13 @@ let rec ReadNode html =
     | TextNode (node, after)        -> node::ReadNode after
     | PrefixFirst (first, after)    -> ReadNode after
     | _                             -> []
+
+let LoadHtml url = async{
+    use wc = new System.Net.WebClient()
+    return! wc.AsyncDownloadString(new System.Uri(url))
+}
+
+let ReadHtml url = async{
+    let! html = LoadHtml url
+    return ReadNode html
+}

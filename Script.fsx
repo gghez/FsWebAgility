@@ -17,4 +17,8 @@ let html = "<div    data-key=\"toto\"
                 <p style=\"font-style: italic;\">Content text</p><p>second content</p>
             </div> <section class=\"sec\" /> "
 
+
 ReadNode html
+
+ReadHtml "http://leprofdinfo.fr"
+    |> Async.RunSynchronously
