@@ -69,12 +69,14 @@ let (|PostfixLast|_|) (input:string) =
 let (|Contains|_|) (needle:string) (input:string) =
     if needle = null then
         Some(System.String.Empty, input)
-    else
+    elif input <> null then
         let needleIndex = input.IndexOf(needle)
-        if input <> null && needleIndex >= 0 then
+        if needleIndex >= 0 then
             Some(input.Substring(0, needleIndex), input.Substring(needleIndex + needle.Length))
         else
             None
+    else
+        None
 
 // Try match input with prefix+str+suffix and provides str
 let (|Match|_|) prefix postfix (input:string) =
