@@ -1,12 +1,10 @@
-﻿// Learn more about F# at http://fsharp.net. See the 'F# Tutorial' project
-// for more guidance on F# programming.
+﻿// Learn more about F# at http://megasnippets.com/languages/fsharp.
 
 #load "StringAgility.fs"
 #load "WebAgility.fs"
 
 
-open WebAgility
-open StringAgility
+open FsWebAgility.WebAgility
 
 let html = "< div    data-key=\"toto\"
                     data-model viewmodel='some \"view\" model'
@@ -18,7 +16,24 @@ let html = "< div    data-key=\"toto\"
             </ div > <!--This is a comment bloc --><section class=\"sec\" /> "
 
 
-ReadElements html
+let elements = ReadElements html
+
+type Tag(name:string, attrs:Attribute list, childs: Tag list) =
+    new(name:string) = Tag(name, [], [])
+
+let rec FindElements eltname (elements:Element list) =
+    match elements with
+    | elt::after    -> 
+        match elt with
+        | NodeDefinition(name, attrs, autoclosed) when name = eltname   -> NodeDefinition(name, attrs, autoclosed)::FindElements eltname after
+        | _                                                             -> FindElements eltname after
+    | _             -> []
+
+let paragraphs = FindElements "p" elements
+
+paragraphs |> Seq.iter (fun p -> printfn "%A" p)
+
+
 
 //ReadHtml "http://leprofdinfo.fr"
 //    |> Async.RunSynchronously

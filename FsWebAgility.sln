@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "WebAgility", "WebAgility.fsproj", "{0D1B1425-9D85-4766-ABE2-E005C83040C2}"
+Project("{4925A630-B079-445d-BCD4-3A9C94FE9307}") = "FsWebAgility", "FsWebAgility.fsproj", "{0D1B1425-9D85-4766-ABE2-E005C83040C2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,6 +13,9 @@ Global
 		{0D1B1425-9D85-4766-ABE2-E005C83040C2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0D1B1425-9D85-4766-ABE2-E005C83040C2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0D1B1425-9D85-4766-ABE2-E005C83040C2}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = FsWebAgility.fsproj
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -5,12 +5,13 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>0d1b1425-9d85-4766-abe2-e005c83040c2</ProjectGuid>
-+   <OutputType>Library</OutputType>
-    <RootNamespace>WebAgility</RootNamespace>
-    <AssemblyName>WebAgility</AssemblyName>
+    <ProjectGuid>0D1B1425-9D85-4766-ABE2-E005C83040C2</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>FsWebAgility</RootNamespace>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <Name>WebAgility</Name>
+    <Name>FsWebAgility</Name>
+    <AssemblyName>FsWebAgility</AssemblyName>
+    <ProductVersion>12.0.0</ProductVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -33,9 +34,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="mscorlib" />
-    <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-      <Private>True</Private>
-    </Reference>
+    <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Numerics" />
