@@ -94,7 +94,7 @@ let (|Attribute|_|) html =
 // Read HTML node attributes from html
 let rec ReadAttributes html =
     match html with
-    | PrefixFirstSpace after    -> ReadAttributes after
+    | PrefixAllSpaces after    -> ReadAttributes after
     | Prefix "/" after
     | Prefix ">" after          -> ([], html)
     | Attribute (attr, after)   ->
@@ -119,42 +119,77 @@ let rec ReadNodeName html =
         (letter + name, nameAfter)
     | _                         -> (System.String.Empty, html)
 
-// Provides a simple structure for HTML node
-//type Node = {Name:string; Attributes:Attribute list; }
-type Node =
+let (|NodeName|) input = ReadNodeName input
+
+let rec ReadAutoClosedNode input =
+    match input with
+    | Prefix ">" after      -> (System.String.Empty, after)
+    | PrefixAllSpaces after -> ReadAutoClosedNode after
+    | _                     ->
+        let (name, afterName) = ReadNodeName input
+        let (acName, acNameAfter) = ReadAutoClosedNode afterName
+        (name + acName, acNameAfter)
+
+let rec ReadCommentNode input =
+    match input with
+    | Prefix "-->" after            -> (System.String.Empty, after)
+    | PrefixFirst (first, after)    ->
+        let (comment, commentAfter) = ReadCommentNode after
+        (first + comment, commentAfter)
+    | _                             -> (System.String.Empty, System.String.Empty)
+
+let rec ReadNodeDefinition input =
+    printfn " ReadNodeDefinition %A" input
+    match input with
+    | Prefix ">" after              -> (System.String.Empty, [], false, after)
+    | Prefix "/" after              ->
+        let (name, attrs, _, afterDef) = ReadNodeDefinition after
+        (name, attrs, true, afterDef)
+    | PrefixAllSpaces after         -> ReadNodeDefinition after
+    | NodeName (name, after)        ->
+        let (attrs, afterAttrs) = ReadAttributes after
+        let (_, _, autoclosed, afterDef) = ReadNodeDefinition afterAttrs
+        (name, attrs, autoclosed, afterDef)
+    | _                             -> (System.String.Empty, [], false, System.String.Empty)
+
+// Provides a simple structure for HTML element
+type Element =
     | NodeDefinition of string * Attribute list * bool
     | NodeClosing of string
-    | NodeText of string
-    | NodeComment of string
-    | NodeUnknown of string
+    | Literal of string
+    | Comment of string
+    | Unknown of string
 
-// Try match a HTML node definition with html (eg: <div style="...">)
-
-let (|Node|_|) html =
+// Try match a HTML tag with html
+let (|Tag|_|) html =
     match html with
     | Prefix "<" after  ->
         match TrimStartSpaces after with
+        // match with auto-closed node
         | Prefix "/" afterSlash         ->
-            let (name, nameAfter) = ReadNodeName afterSlash
+            let (name, nameAfter) = ReadAutoClosedNode afterSlash
             Some(NodeClosing(name), nameAfter)
+        // match with comment node
+        | Prefix "!--" afterCommentMark ->
+            let (comment, commentAfter) = ReadCommentNode afterCommentMark
+            Some(Comment(comment), commentAfter)
+        // match with any other node type
         | _                             ->
-            let (name, nameAfter) = ReadNodeName after
-            let (attrs, attrsAfter) = ReadAttributes nameAfter
-            Some(NodeDefinition(name, attrs, StartsWith "/" attrsAfter), attrsAfter)
+            let (name, attrs, autoClosed, afterDefinition) = ReadNodeDefinition after
+            Some(NodeDefinition(name, attrs, autoClosed), afterDefinition)
     | _                 -> None
 
-let (|TextNode|_|) html =
+let (|Literal|_|) html =
    match html with
     | Prefix "<" after                  -> None
-    | Contains "<" (before, after)      -> Some(NodeText(before), "<" + after)
+    | Contains "<" (before, after)      -> Some(Element.Literal(before), "<" + after)
     | _                                 -> None
 
-let rec ReadNode html =
+let rec ReadElements html =
     match html with
-    | Prefix ">" after              -> ReadNode after
-    | Node (node, after)
-    | TextNode (node, after)        -> node::ReadNode after
-    | PrefixFirst (first, after)    -> ReadNode after
+    | Tag (element, after)
+    | Literal (element, after)      -> element::ReadElements after
+    | PrefixFirst (first, after)    -> ReadElements after
     | _                             -> []
 
 let LoadHtml url = async{
@@ -164,5 +199,5 @@ let LoadHtml url = async{
 
 let ReadHtml url = async{
     let! html = LoadHtml url
-    return ReadNode html
+    return ReadElements html
 }

@@ -8,17 +8,17 @@
 open WebAgility
 open StringAgility
 
-let html = "<div    data-key=\"toto\"
+let html = "< div    data-key=\"toto\"
                     data-model viewmodel='some \"view\" model'
                     width   = 650
                     data   =
                         \"titi\" last=some>
                 <h1>Title <span class='b'>te<b>x</b>t </span></h1><hr/>
                 <p style=\"font-style: italic;\">Content text</p><p>second content</p>
-            </div> <section class=\"sec\" /> "
+            </ div > <!--This is a comment bloc --><section class=\"sec\" /> "
 
 
-ReadNode html
+ReadElements html
 
-ReadHtml "http://leprofdinfo.fr"
-    |> Async.RunSynchronously
+//ReadHtml "http://leprofdinfo.fr"
+//    |> Async.RunSynchronously

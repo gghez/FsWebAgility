@@ -60,6 +60,11 @@ let (|PrefixFirstSpace|_|) input =
     | PrefixFirst (first, after)    -> match first with | WhiteSpace -> Some(after) | _ -> None
     | _                             -> None
 
+// 
+let (|PrefixAllSpaces|_|) input =
+    match input with
+    | PrefixFirstSpace after    -> Some(TrimStartSpaces after)
+    | _                         -> None
 
 // Match input with before+(any char) and provides before  
 let (|PostfixLast|_|) (input:string) =
