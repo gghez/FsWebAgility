@@ -2,8 +2,8 @@
 
 module StringAgility =
 
-    let StartsWith (str:string) (input:string) = input <> null && str <> null && input.Length >= str.Length && input.StartsWith(str)
-    let EndsWith (str:string) (input:string) = input <> null && str <> null && input.Length >= str.Length && input.EndsWith(str)
+    let StartsWith (str:string) (input:string) = input <> null && str <> null && input.Length >= str.Length && input.StartsWith(str, System.StringComparison.Ordinal)
+    let EndsWith (str:string) (input:string) = input <> null && str <> null && input.Length >= str.Length && input.EndsWith(str, System.StringComparison.Ordinal)
 
     // Remove first n chars from a string
     let TrimNStart n (input:string) = input.Substring(n)
