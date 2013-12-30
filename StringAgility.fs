@@ -27,7 +27,7 @@ module StringAgility =
     // Provides the last char of input
     let LastChar (input:string) = input.Substring(input.Length - 1)
 
-
+    // Try match input with a white-space char
     let (|WhiteSpace|_|) input =
         match input with
         | " " | "\n" | "\t" | "\r"  -> Some()
