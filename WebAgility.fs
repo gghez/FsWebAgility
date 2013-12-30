@@ -8,6 +8,7 @@ module WebAgility =
     let rec ReadIntoLiteral input =
         match input with
         | PrefixFirstSpace after
+        | Prefix "/" after
         | Prefix ">" after              -> (System.String.Empty, input)
         | PrefixFirst (first, after)    ->
             let (text, afterText) = ReadIntoLiteral after
@@ -131,7 +132,8 @@ module WebAgility =
 
     let rec ReadCommentNode input =
         match input with
-        | Prefix "-->" after            -> (System.String.Empty, after)
+        | Prefix "-->" after
+        | Prefix ">" after              -> (System.String.Empty, after)
         | PrefixFirst (first, after)    ->
             let (comment, commentAfter) = ReadCommentNode after
             (first + comment, commentAfter)
@@ -151,7 +153,7 @@ module WebAgility =
             (name, attrs, autoclosed, afterDef)
 
     // Provides a simple structure for HTML element
-    type Element =
+    type HtmlNode =
         | NodeDefinition of string * Attribute list * bool
         | NodeClosing of string
         | Literal of string
@@ -168,7 +170,8 @@ module WebAgility =
                 let (name, nameAfter) = ReadAutoClosedNode afterSlash
                 Some(NodeClosing(name), nameAfter)
             // match with comment node
-            | Prefix "!--" afterCommentMark ->
+            | Prefix "!--" afterCommentMark
+            | Prefix "!" afterCommentMark   ->
                 let (comment, commentAfter) = ReadCommentNode afterCommentMark
                 Some(Comment(comment), commentAfter)
             // match with any other node type
@@ -177,28 +180,59 @@ module WebAgility =
                 Some(NodeDefinition(name, attrs, autoClosed), afterDefinition)
         | _                 -> None
 
+    // Try match a html fragment with an between-nodes literal
+    // eg: <title>Page title</title> contains the "Page title" literal
     let (|Literal|_|) html =
        match html with
         | Prefix "<" after                  -> None
-        | Contains "<" (before, after)      -> Some(Element.Literal(before), "<" + after)
+        | Contains "<" (before, after)      -> Some(HtmlNode.Literal(before), "<" + after)
         | _                                 -> None
 
-    let rec ReadElements html =
+    // Iterate through html and yield a node whenever discovered
+    let rec HtmlNodes html =
         match html with
-        | Tag (element, after)
-        | Literal (element, after)      -> element::ReadElements after
-        | PrefixFirst (first, after)    -> ReadElements after
-        | _                             -> []
+        | Tag (node, after)
+        | Literal (node, after)         -> seq {
+                                                yield node
+                                                yield! HtmlNodes after
+                                            }
+        | PrefixFirst (first, after)    -> seq { yield! HtmlNodes after }
+        | _                             -> Seq.empty
 
+    // Provides a type for a HTML tag (eg: <p style="..."> ...</p>)
+    type HtmlTag = { Name:string; Attributes:Attribute list; Parent:HtmlTag option}
 
+    // Find all tags inside html matching tagName as name
+    let HtmlTags tagName html =
+        let rec FindTags parent tagName (elements:HtmlNode list) =
+            match elements with
+            | NodeDefinition(name, attrs, autoclosed)::after    ->
+                let tag = {Name=name; Attributes=attrs; Parent=parent}
+                if name = tagName then
+                    match autoclosed with
+                    | true  -> tag::FindTags parent tagName after
+                    | false -> tag::FindTags (Some tag) tagName after
+                else
+                    FindTags (Some tag) tagName after
+            | element::after                                    -> FindTags parent tagName after
+            | _                                                 -> []
+        FindTags None tagName (Seq.toList (HtmlNodes html))
 
+    // Load a HTML content from an URL
     let LoadHtml url = async{
         use wc = new System.Net.WebClient()
         return! wc.AsyncDownloadString(new System.Uri(url))
     }
 
-    let ReadHtml url = async{
+    // Iterate nodes inside HTML got thru url
+    let UrlNodes url = async{
         let! html = LoadHtml url
-        return ReadElements html
+        return HtmlNodes html
+    }
+
+    // Find tags inside HTML got thru url
+    let UrlTags tagName url = async{
+        let! html = LoadHtml url
+        return HtmlTags tagName html
     }
 
