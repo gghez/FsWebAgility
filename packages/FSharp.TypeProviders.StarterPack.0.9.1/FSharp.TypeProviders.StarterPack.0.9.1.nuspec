@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
+  <metadata>
+    <id>FSharp.TypeProviders.StarterPack</id>
+    <version>0.9.1</version>
+    <title>FSharp.TypeProviders.StarterPack</title>
+    <authors>Tomas Petricek,  Gustavo Guerra,  Michael Newton</authors>
+    <owners>Tomas Petricek,  Gustavo Guerra,  Michael Newton</owners>
+    <licenseUrl>http://github.com/mavnn/FSharp.TypeProviders.StarterPack/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>http://github.com/mavnn/FSharp.TypeProviders.StarterPack</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The F# Type Provider Starter Pack contains everything you need to start building your own type providers.</description>
+    <summary>Helper code and examples for getting started with Type Providers</summary>
+    <releaseNotes>Make sure files are added in the right order by putting them in a sub folder.</releaseNotes>
+    <copyright>Copyright 2013</copyright>
+    <language />
+    <tags>F# fsharp typeprovider</tags>
+  </metadata>
+</package>

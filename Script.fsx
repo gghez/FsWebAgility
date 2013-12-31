@@ -6,21 +6,68 @@
 
 open FsWebAgility.WebAgility
 
-let html = """< div    data-key="toto"
-                    data-model viewmodel='some \'view\' model'
-                    width   = 650
-                    data   =
-                        "titi" last=some>
-                <h1>Title <span class='b'>te<b>x</b>t </span></h1><hr/>
-                <p style="font-style: \'italic\';">Content text</p><p>second content</p>
-            </ div > <!--This is a comment bloc --><section class=sec/> """
+//let html = """< div    data-key="toto"
+//                    data-model viewmodel='some \'view\' model'
+//                    width   = 650
+//                    data   =
+//                        "titi" last=some>
+//                <h1>Title <span class='b'>te<b>x</b>t </span></h1><hr/>
+//                <p style="font-style: \'italic\';">Content with <a href="http://megasnippets.com"></ a></p><p>second content</p>
+//            </ div > <!--This is a comment bloc --><section class=sec/> """
+//
+//
+//HtmlNodes html |> Seq.iter (fun p -> printfn "%A" p)
+//HtmlTags "a" html |> Seq.iter (fun p -> printfn "%A" p)
+//
+//UrlTags "a" "http://leprofdinfo.fr"
+//    |> Async.RunSynchronously
+//    |> Seq.map (fun tag -> tag.Attributes |> Seq.pick (fun attr -> if attr.Name = "href" then Some(attr.Value) else None))
+//    |> Seq.iter (fun attr -> printfn "%A" attr)
 
-// Failed test fixing in progress...
-//let html = """
-//              <script type='text/javascript'>/*<![CDATA[*/var thickboxL10n={"next":"Suiv.\u00a0>","prev":"<\u00a0Pr\u00e9c.","image":"Image","of":"sur","close":"Fermer","noiframes":"Cette fonctionnalit\u00e9 requiert des iframes. Les iframes sont d\u00e9sactiv\u00e9es sur votre navigateur, ou alors il ne les accepte pas.","loadingAnimation":"http:\/\/leprofdinfo.fr\/wp-includes\/js\/thickbox\/loadingAnimation.gif","closeImage":"http:\/\/leprofdinfo.fr\/wp-includes\/js\/thickbox\/tb-close.png"};/*]]>*/</script>"""
+
+open Microsoft.FSharp.Core.CompilerServices
+
+#load "ProvidedTypes\Code\ProvidedTypes.fs"
+open ProviderImplementation.ProvidedTypes
 
 
-HtmlNodes html |> Seq.iter (fun p -> printfn "%A" p)
-HtmlTags "b" html |> Seq.iter (fun p -> printfn "%A" p)
+type WebAgilityContainer(url:string) =
+    member this.Url = url
+    member this.Nodes = UrlNodes url |> Async.RunSynchronously
 
+[<TypeProvider>]
+type FsWebAgilityTypeProvider(cfg:TypeProviderConfig) as this =
+    inherit TypeProviderForNamespaces()
+    
+    let asm = System.Reflection.Assembly.GetExecutingAssembly()
+    let ns = "FsWebAgility"
 
+    let mainType = ProvidedTypeDefinition(asm, ns, "WebTree", Some(typeof<obj>))
+
+    let urlParameter = ProvidedStaticParameter("url", typeof<string>)
+
+    do mainType.DefineStaticParameters([urlParameter], fun typeName parameters ->
+
+        let providedType = ProvidedTypeDefinition(asm, ns, typeName, None)
+        let url = string parameters.[0]
+
+        // Add a parameterless constructor that loads the file that was used to define the schema.
+        let ``constructor`` = ProvidedConstructor([],
+                                    InvokeCode = fun exprs -> <@@ WebAgilityContainer(url) @@>)
+        providedType.AddMember ``constructor``
+
+        let nodesProperty = ProvidedProperty("Nodes", typedefof<seq<HtmlNode>>, 
+                                    GetterCode = fun exprs -> match exprs with
+                                                    | container::[] -> <@@ (%%container:WebAgilityContainer).Nodes @@>
+                                                    | _             -> <@@ Seq.empty @@> )
+        providedType.AddMember nodesProperty
+
+        providedType)
+    // Add the type to the namespace.
+    do this.AddNamespace(ns, [mainType])
+
+[<assembly:TypeProviderAssembly>] 
+do()
+
+//let tree = new WebTree<"http://leprofdinfo.fr">()
+//tree.Nodes
