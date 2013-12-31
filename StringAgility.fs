@@ -77,9 +77,7 @@ module StringAgility =
 
     // Match input with before+needle+after and provides (before, after) tuple
     let (|Contains|_|) (needle:string) (input:string) =
-        if needle = null then
-            Some(System.String.Empty, input)
-        elif input <> null then
+        if input <> null && needle <> null then
             let needleIndex = input.IndexOf(needle)
             if needleIndex >= 0 then
                 Some(input.Substring(0, needleIndex), input.Substring(needleIndex + needle.Length))
@@ -103,17 +101,17 @@ module StringAgility =
         | _                                 -> None
 
 
-    let (|Letter|_|) (input:string) =
+    let (|PrefixFirstLetter|_|) (input:string) =
         match input with
         | PrefixFirst (first, after)    -> if System.Char.IsLetter(first.[0]) then Some(first, after) else None
         | _                             -> None
 
-    let (|Digit|_|) (input:string) =
+    let (|PrefixFirstDigit|_|) (input:string) =
         match input with
         | PrefixFirst (first, after)    -> if System.Char.IsDigit(first.[0]) then Some(first, after) else None
         | _                             -> None
 
-    let (|LetterOrDigit|_|) (input:string) =
+    let (|PrefixFirstLetterOrDigit|_|) (input:string) =
         match input with
         | PrefixFirst (first, after)    -> if System.Char.IsLetterOrDigit(first.[0]) then Some(first, after) else None
         | _                             -> None
